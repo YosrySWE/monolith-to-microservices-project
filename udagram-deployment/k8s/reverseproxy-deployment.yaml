@@ -8,15 +8,15 @@ spec:
   selector:
     matchLabels:
       service: reverseproxy
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
         service: reverseproxy
     spec:
       containers:
-        - image: yosryswe/reverseproxy:v0
-          name: reverseproxy
+        - image: yosryswe/udagram-reverseproxy
+          name: reverse-proxy
           imagePullPolicy: Always
           resources:
             requests:

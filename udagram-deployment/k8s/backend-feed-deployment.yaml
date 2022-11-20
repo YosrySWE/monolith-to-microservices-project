@@ -2,28 +2,28 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    service: backend-feed
-  name: backend-feed
+    service: udagram-backend-feed
+  name: udagram-backend-feed
 spec:
   selector:
     matchLabels:
-      service: backend-feed
-  replicas: 3
+      service: udagram-backend-feed
+  replicas: 2
   template:
     metadata:
       labels:
-        service: backend-feed
+        service: udagram-backend-feed
     spec:
       containers:
-        - image: yosryswe/udagram-api-feed:v0
-          name: backend-feed
+        - image: yosryswe/udagram-backend-feed
+          name: udagram-backend-feed
           imagePullPolicy: Always
           resources:
             requests:
-              memory: "100Mi"
+              memory: "128Mi"
               cpu: "250m"
             limits:
-              memory: "1024Mi"
+              memory: "2048Mi"
               cpu: "500m"
           env:
             - name: URL
@@ -51,26 +51,26 @@ spec:
                 configMapKeyRef:
                   name: env-config
                   key: JWT_SECRET
-            - name: POSTGRESS_DB
+            - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
                   name: env-config
-                  key: POSTGRESS_DB
-            - name: POSTGRESS_HOST
+                  key: POSTGRES_DB
+            - name: POSTGRES_HOST
               valueFrom:
                 configMapKeyRef:
                   name: env-config
-                  key: POSTGRESS_HOST
-            - name: POSTGRESS_PASSWORD
+                  key: POSTGRES_HOST
+            - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: env-secret
-                  key: POSTGRESS_PASSWORD
-            - name: POSTGRESS_USERNAME
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: env-secret
-                  key: POSTGRESS_USERNAME
+                  key: POSTGRES_USERNAME
           volumeMounts:
             - name: aws-secret
               mountPath: "/root/.aws/"
