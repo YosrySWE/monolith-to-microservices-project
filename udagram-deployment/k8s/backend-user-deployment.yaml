@@ -2,36 +2,50 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    service: udagram-backend-user
-  name: udagram-backend-user
+    service: backend-user
+  name: backend-user
 spec:
-  spec:
+  replicas: 2
   selector:
     matchLabels:
-      service: udagram-backend-user
-  replicas: 1
+      service: backend-user
   template:
     metadata:
       labels:
-        service: udagram-backend-user
+        service: backend-user
     spec:
       containers:
-        - image: yosryswe/udagram-backend-user
-          name: udagram-backend-user
+        - image: yosryswe/udagram-api-user:v1
+          name: backend-user
           imagePullPolicy: Always
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "250m"
+              memory: "1024Mi"
+              cpu: "500m"
             limits:
               memory: "2048Mi"
-              cpu: "500m"
+              cpu: "1000m"
           env:
             - name: URL
               valueFrom:
                 configMapKeyRef:
                   name: env-config
                   key: URL
+            - name: AWS_BUCKET
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config
+                  key: AWS_BUCKET
+            - name: AWS_PROFILE
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config
+                  key: AWS_PROFILE
+            - name: AWS_REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config
+                  key: AWS_REGION
             - name: JWT_SECRET
               valueFrom:
                 configMapKeyRef:
@@ -57,19 +71,12 @@ spec:
                 secretKeyRef:
                   name: env-secret
                   key: POSTGRES_USERNAME
-            - name: AWS_REGION
-              valueFrom:
-                configMapKeyRef:
-                  name: env-config
-                  key: AWS_REGION
-            - name: AWS_PROFILE
-              valueFrom:
-                configMapKeyRef:
-                  name: env-config
-                  key: AWS_PROFILE
-            - name: AWS_BUCKET
-              valueFrom:
-                configMapKeyRef:
-                  name: env-config
-                  key: AWS_BUCKET
+          volumeMounts:
+            - name: aws-secret
+              mountPath: "/root/.aws/"
+              readOnly: true
       restartPolicy: Always
+      volumes:
+        - name: aws-secret
+          secret:
+            secretName: aws-secret

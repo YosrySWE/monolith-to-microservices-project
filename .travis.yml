@@ -1,20 +1,43 @@
 language: minimal
-services: docker
+
+services:
+  - docker
+
 env:
   - DOCKER_COMPOSE_VERSION=1.23.2
-  - DOCKER_USERNAME = $DOCKER_USERNAME
-  - DOCKER_PASSWORD = $DOCKER_PASSWORD
+
 before_install:
-  - docker -v && docker-compose -v
   - sudo rm /usr/local/bin/docker-compose
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
-  - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-  - chmod +x ./kubectl
-  - sudo mv ./kubectl /usr/local/bin/kubectl
 
+# Pre-testing installs
 install:
-  - docker-compose -f udagram-deployment/docker-compose-build.yaml build --parallel
-  - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-  - if [ "$TRAVIS_BRANCH" == "main" ]; then echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin; docker-compose -f udagram-deployment/docker-compose-build.yaml push; fi
+  - docker-compose -f docker-compose-build.yaml build --parallel --no-cache
+
+# Scripts to be run such as tests
+before_script:
+  - echo "no tests"
+
+script:
+  - docker --version # print the version for logging
+
+  - docker build -t udagram-api-feed ./udagram-api-feed
+  - docker tag udagram-api-feed yosryswe/udagram-api-feed:v1
+
+  - docker build -t udagram-api-user ./udagram-api-user
+  - docker tag udagram-api-user yosryswe/udagram-api-user:v1
+
+  - docker build -t udagram-frontend ./udagram-frontend
+  - docker tag udagram-frontend yosryswe/udagram-frontend:v1
+
+  - docker build -t udagram-reverse-proxy ./udagram-deployment/reverse-proxy
+  - docker tag udagram-reverse-proxy yosryswe/udagram-reverseproxy:v1
+
+after_success:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker push yosryswe/udagram-api-feed:v1
+  - docker push yosryswe/udagram-api-user:v1
+  - docker push yosryswe/udagram-frontend:v1
+  - docker push yosryswe/udagram-reverseproxy:v1

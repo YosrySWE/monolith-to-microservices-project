@@ -2,29 +2,29 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    service: udagram-backend-feed
-  name: udagram-backend-feed
+    service: backend-feed
+  name: backend-feed
 spec:
+  replicas: 2
   selector:
     matchLabels:
-      service: udagram-backend-feed
-  replicas: 2
+      service: backend-feed
   template:
     metadata:
       labels:
-        service: udagram-backend-feed
+        service: backend-feed
     spec:
       containers:
-        - image: yosryswe/udagram-backend-feed
-          name: udagram-backend-feed
+        - image: yosryswe/udagram-api-feed:v1
+          name: backend-feed
           imagePullPolicy: Always
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "250m"
+              memory: "1024Mi"
+              cpu: "500m"
             limits:
               memory: "2048Mi"
-              cpu: "500m"
+              cpu: "1000m"
           env:
             - name: URL
               valueFrom:
