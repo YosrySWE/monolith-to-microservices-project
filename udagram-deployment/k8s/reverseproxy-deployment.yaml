@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - image: yosryswe/udagram-reverseproxy
-          name: reverse-proxy
+          name: reverseproxy
           imagePullPolicy: Always
           resources:
             requests:
